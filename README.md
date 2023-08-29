@@ -8,7 +8,7 @@
 
 ## TL;DR.
 
-This gateway enables transactions through the MyFatoorah [Embedded Payment](https://docs.myfatoorah.com/docs/embedded-payment) API. 
+This gateway enables transactions through the MyFatoorah [Gateway Integration](https://docs.myfatoorah.com/docs/gateway-integration) API. 
 
 
 ## Installation
@@ -33,11 +33,45 @@ To customize the plugin's behavior, you can add a `myfatoorah.php` file to your 
 ```php
 <?php
 
-return [
-    '' => [
-        //
-    ];
-];
+use craft\commerce\base\GatewayInterface;
+use craft\commerce\elements\Order;
+use TopShelfCraft\MyFatoorah\config\Settings;
+
+return Settings::create()
+
+	/*
+	 * A callable that returns `true` if the gateway supports payments for the given order and `false` if not.
+	 *
+	 * This method is called before a payment is made for the supplied order. It can be
+	 * used by developers building a checkout and deciding if this gateway should be shown as
+	 * and option to the customer. It also can prevent a gateway from being used with a particular order.
+	 *
+	 * The callable expects two parameters:
+	 *  - `$order`, the Order element
+	 *  - `$gateway`, the GatewayInterface instance
+	 *
+	 * If omitted, the gateway will be available for all orders.
+	 */
+	->availableForUseWithOrder(function(Order $order, GatewayInterface $gateway) {
+		// ...
+	})
+
+	/*
+	 * The list of country code options available for settings controls.
+	 */
+	->countryCodeOptions([
+		'BRH' => "BRH (Bahrain)",
+		'EGY' => "EGY (Egypt)",
+		'JOR' => "JOR (Jordan)",
+		'KWT' => "KWT (Kuwait)",
+		'OMN' => "OMN (Oman)",
+		'QAT' => "QAT (Qatar)",
+		'SAU' => "SAU (Saudi Arabia)",
+		'ARE' => "ARE (United Arab Emirates)",
+	])
+
+	// Cast the fluent Settings object to a settings array for Craft to load.
+	->toArray();
 ```
 
 
