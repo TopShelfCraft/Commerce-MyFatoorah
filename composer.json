@@ -1,0 +1,42 @@
+{
+    "name": "topshelfcraft/commerce-myfatoorah",
+    "description": "Community-provided MyFatoorah payment gateway for Craft Commerce",
+    "type": "craft-plugin",
+    "version": "4.0.0-beta.1",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "commerce",
+        "payment",
+        "payment gateway",
+        "myfatoorah",
+        "fatoorah"
+    ],
+    "support": {
+        "issues": "https://github.com/TopShelfCraft/Commerce-MyFatoorah/issues"
+    },
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Top Shelf Craft (Michael Rog)",
+            "homepage": "https://topshelfcraft.com"
+        }
+    ],
+    "require": {
+        "craftcms/commerce": "^4.2.11",
+        "myfatoorah/library": "2.2.4",
+        "topshelfcraft/base": "^4.0.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "TopShelfCraft\\MyFatoorah\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "MyFatoorah",
+        "handle": "myfatoorah",
+        "class": "TopShelfCraft\\MyFatoorah\\MyFatoorah"
+    }
+}

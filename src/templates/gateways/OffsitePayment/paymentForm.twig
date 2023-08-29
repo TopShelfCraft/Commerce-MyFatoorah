@@ -1,0 +1,16 @@
+{#
+TODO: We can optionally select a Payment Method ID on our side, before submitting the invoice.
+If we don't, MyFatoorah's page shows the payment method selector, which is what we're using for now.
+#}
+
+{% from "_includes/forms" import select %}
+
+{{ select({
+	label: "Payment Method"|t('myfatoorah'),
+	id: 'paymentMethodId',
+	name: 'paymentMethodId',
+	required: true,
+	options: paymentMethods | map(m => { value: m.PaymentMethodId, label: m.PaymentMethodEn }),
+	value: paymentForm.paymentMethodId,
+	errors: paymentForm.getErrors('paymentMethodId')
+}) }}

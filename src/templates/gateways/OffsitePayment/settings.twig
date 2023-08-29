@@ -1,0 +1,45 @@
+{% from "_includes/forms" import autosuggestField, booleanMenuField, selectizeField %}
+
+{{ autosuggestField({
+	label: "API Key"|t('myfatoorah'),
+	id: 'apiKey',
+	class: 'ltr',
+	name: 'apiKey',
+	required: true,
+	suggestEnvVars: true,
+	value: gateway.apiKey,
+	errors: gateway.getErrors('apiKey')
+}) }}
+
+{{ selectizeField({
+	label: "Country Code"|t('myfatoorah'),
+	id: 'countryCode',
+	name: 'countryCode',
+	options: craft.app.getModule('myfatoorah').settings.countryCodeOptions,
+	required: true,
+	includeEnvVars: true,
+	allowedEnvValues: null,
+	value: gateway.countryCode,
+	errors: gateway.getErrors('mode')
+}) }}
+
+{{ booleanMenuField({
+	label: "Enable 'Save Card' option"|t('myfatoorah'),
+	name: 'enableSaveCard',
+	value: gateway.enableSaveCard,
+	includeEnvVars: true,
+	errors: gateway.getErrors('enableSaveCard'),
+}) }}
+
+{{ selectizeField({
+	label: "Mode"|t('myfatoorah'),
+	id: 'mode',
+	name: 'mode',
+	options: craft.app.getModule('myfatoorah').settings.modeOptions,
+	required: true,
+	includeEnvVars: true,
+	allowedEnvValues: null,
+	value: gateway.mode,
+	errors: gateway.getErrors('mode')
+}) }}
+
