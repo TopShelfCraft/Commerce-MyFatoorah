@@ -7,7 +7,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
-use craft\commerce\stripe\models\Invoice;
 use craft\helpers\UrlHelper;
 use craft\web\Response as WebResponse;
 use craft\web\View;
@@ -81,10 +80,10 @@ class OffsitePaymentGateway extends BaseGateway
 				throw new \Exception("Cannot find Invoice associated with this Transaction.");
 			}
 
-			$myf = new MyFatoorahPaymentStatus($this->getClientConfig());
-			$data = $myf->getPaymentStatus($invoice->invoiceId, 'InvoiceId');
+			$mfPaymentStatusApi = new MyFatoorahPaymentStatus($this->getClientConfig());
+			$data = $mfPaymentStatusApi->getPaymentStatus($invoice->invoiceId, 'InvoiceId');
 			$data = json_decode(json_encode($data), true);
-			MyFatoorah::notice(['API data', $data]);
+			MyFatoorah::notice(['mfPaymentStatusApi:data', $data]);
 
 			return OffsitePaymentResponse::fromCallbackData($data);
 
@@ -131,11 +130,17 @@ class OffsitePaymentGateway extends BaseGateway
 		$customerIdentifier = $order && $this->getParsedEnableSaveCard() ? $this->getCustomerIdentifier($order) : null;
 		$payableBalance = max($order->getOutstandingBalance(), 0);
 
-		try {
-			$payment = new MyFatoorahPayment($this->getClientConfig());
-			$paymentMethods = $payment->initiatePayment($payableBalance, $order->currency);
-		} catch (\Exception $e) {
-			throw new \Exception("Could not initiate payment: " . $e->getMessage());
+		try
+		{
+			$mfPaymentApi = new MyFatoorahPayment($this->getClientConfig());
+			$paymentMethods = $mfPaymentApi->initiatePayment($payableBalance, $order->currency);
+			$paymentMethods = json_decode(json_encode($paymentMethods), true);
+			MyFatoorah::notice(['mfPaymentApi:paymentMethods', $paymentMethods]);
+		}
+		catch (\Exception $e)
+		{
+			MyFatoorah::error("Could not initiate payment: " . $e->getMessage());
+			throw new \Exception("Could not initiate payment.");
 		}
 
 		return Craft::$app->view->renderTemplate(
@@ -193,7 +198,7 @@ class OffsitePaymentGateway extends BaseGateway
 
 		/** @var OffsitePaymentForm $form */
 
-		$paymentMethodId = 0;
+		$paymentMethodId = 1;
 
 		$language = match (true) {
 			str_contains(strtolower((string)$form->language), 'ar') => self::ArabicLanguageCode,
@@ -203,10 +208,13 @@ class OffsitePaymentGateway extends BaseGateway
 			default => self::EnglishLanguageCode,
 		};
 
-		MyFatoorah::notice(["lang", $language]);
+		MyFatoorah::notice(["Language", $language]);
 
-
-		$orderId = $transaction->hash;
+		$customerName = $order->billingAddress?->fullName ?? $order->customer?->fullName;
+		if (!$customerName)
+		{
+			throw new \Exception("Customer name is required.");
+		}
 
 		$returnUrl = UrlHelper::actionUrl('commerce/payments/complete-payment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
 
@@ -216,14 +224,15 @@ class OffsitePaymentGateway extends BaseGateway
 				'InvoiceValue' => $transaction->amount,
 				'CallBackUrl' => $returnUrl,
 				'ErrorUrl' => $returnUrl,
-				'CustomerName' => $order->billingAddress?->fullName ?? 'TEST',
+				'CustomerName' => $customerName,
 				'CustomerReference' => $order->reference,
 				'Language' => $language,
 			];
 
-			$payment = new MyFatoorahPayment($this->getClientConfig());
-			$data = $payment->getInvoiceURL($postFields, $paymentMethodId, $orderId);
-			MyFatoorah::notice(["MFP data", $data]);
+			$mfPaymentApi = new MyFatoorahPayment($this->getClientConfig());
+			$data = $mfPaymentApi->getInvoiceURL($postFields, $paymentMethodId, $transaction->hash);
+			$data = json_decode(json_encode($data), true);
+			MyFatoorah::notice(['mfPaymentApi:data', $data]);
 
 			$invoice = new InvoiceRecord([
 				'transactionHash' => $transaction->hash,

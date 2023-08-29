@@ -26,11 +26,11 @@
     ],
     "require": {
         "craftcms/commerce": "^4.2.11",
-        "myfatoorah/library": "2.2.4",
         "topshelfcraft/base": "^4.0.2"
     },
     "autoload": {
         "psr-4": {
+            "MyFatoorah\\Library\\": "lib/myfatoorah/library/src/",
             "TopShelfCraft\\MyFatoorah\\": "src/"
         }
     },

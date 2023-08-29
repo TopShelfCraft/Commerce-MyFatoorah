@@ -68,9 +68,20 @@ class MyFatoorah extends Plugin
 		return Settings::create();
 	}
 
+	/**
+	 * @internal
+	 */
 	public static function notice($data)
 	{
 		Craft::getLogger()->log(print_r($data, true), LogLevel::NOTICE, 'MyFatoorah');
+	}
+
+	/**
+	 * @internal
+	 */
+	public static function error($data)
+	{
+		Craft::getLogger()->log(print_r($data, true), LogLevel::ERROR, 'MyFatoorah');
 	}
 
 }
