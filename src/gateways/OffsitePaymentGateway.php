@@ -198,7 +198,7 @@ class OffsitePaymentGateway extends BaseGateway
 
 		/** @var OffsitePaymentForm $form */
 
-		$paymentMethodId = 1;
+		$paymentMethodId = 0;
 
 		$language = match (true) {
 			str_contains(strtolower((string)$form->language), 'ar') => self::ArabicLanguageCode,
